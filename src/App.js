@@ -1,48 +1,123 @@
-import React from "react";
-// 1. Import style mặc định (Bắt buộc để có giao diện đẹp)
-import "@livekit/components-styles";
-// 2. Import các component cần thiết
+import React, { useState } from "react";
 import { LiveKitRoom, VideoConference } from "@livekit/components-react";
+import "@livekit/components-styles";
 
 function App() {
-  // === ĐIỀN THÔNG TIN BẠN VỪA LẤY Ở BƯỚC 1 VÀO ĐÂY ===
-
-  // Dòng wss://... lấy ở Dashboard
+  // 1. Thay URL Server của bạn vào đây (URL thì thường cố định)
   const LIVEKIT_URL = "wss://nhom6-thu4ca3-voh0dtp2.livekit.cloud";
 
-  // Đoạn mã dài loằng ngoằng bạn vừa Generate
-  const TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAxOTYwNDUsImlkZW50aXR5IjoiNyIsImlzcyI6IkFQSU5ocXdheG13UFdvdSIsIm5iZiI6MTc3MDE5NTE0NSwic3ViIjoiNyIsInZpZGVvIjp7ImNhblB1Ymxpc2giOnRydWUsImNhblB1Ymxpc2hEYXRhIjp0cnVlLCJjYW5TdWJzY3JpYmUiOnRydWUsInJvb20iOiJ0aHU0LWNhQ2hpZXUiLCJyb29tSm9pbiI6dHJ1ZX19.EqH7xVMPGqLYZmW9R89Oz4-jO5blCMNhqp5_4tzms2Q";
+  // 2. Tạo State để quản lý Token và trạng thái nhập liệu
+  const [token, setToken] = useState("");
+  const [isJoined, setIsJoined] = useState(false);
 
-  // Nếu thiếu thông tin thì hiện thông báo
-  if (
-    LIVEKIT_URL === "wss://your-project.livekit.cloud" ||
-    !TOKEN.startsWith("ey")
-  ) {
+  // Hàm xử lý khi bấm nút "Vào phòng"
+  const handleJoin = () => {
+    if (token.trim().length === 0) {
+      alert("Vui lòng dán Token vào!");
+      return;
+    }
+    setIsJoined(true);
+  };
+
+  // Hàm xử lý khi bấm nút "Rời phòng" hoặc bị ngắt kết nối
+  const handleLeave = () => {
+    setIsJoined(false);
+    setToken(""); // Xóa token để nhập cái mới
+  };
+
+  // === MÀN HÌNH 1: NHẬP TOKEN ===
+  if (!isJoined) {
     return (
-      <div style={{ padding: 20, color: "red" }}>
-        Bạn chưa điền URL hoặc Token vào code!
+      <div style={styles.loginContainer}>
+        <div style={styles.card}>
+          <h2>Tham gia phòng họp</h2>
+          <p style={{ marginBottom: 10 }}>Dán Token của bạn vào đây:</p>
+
+          <input
+            type="text"
+            placeholder="eyJhbGciOiJIUzI1NiIsIn..."
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            style={styles.input}
+          />
+
+          <button onClick={handleJoin} style={styles.button}>
+            Vào phòng ngay
+          </button>
+
+          <p style={styles.note}>
+            *Mẹo: Chạy lệnh <code>node token.js</code> để lấy token mới.
+          </p>
+        </div>
       </div>
     );
   }
 
+  // === MÀN HÌNH 2: PHÒNG HỌP (LIVEKIT) ===
   return (
-    <div style={{ height: "100vh", width: "100vw", backgroundColor: "#111" }}>
+    <div style={styles.roomContainer}>
       <LiveKitRoom
         video={true}
         audio={true}
-        token={TOKEN}
+        token={token}
         serverUrl={LIVEKIT_URL}
         connect={true}
         data-lk-theme="default"
+        onDisconnected={handleLeave} // Khi rời phòng thì quay lại màn hình nhập
       >
-        {/* VideoConference là component "All-in-one". 
-           Nó tự động phát hiện số lượng người để chia Grid.
-        */}
         <VideoConference />
       </LiveKitRoom>
     </div>
   );
 }
+
+// CSS đơn giản cho đẹp mắt
+const styles = {
+  loginContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    backgroundColor: "#f0f2f5",
+    fontFamily: "Arial, sans-serif",
+  },
+  card: {
+    backgroundColor: "white",
+    padding: "40px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    textAlign: "center",
+    width: "400px",
+  },
+  input: {
+    width: "100%",
+    padding: "12px",
+    marginBottom: "20px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    fontSize: "14px",
+    boxSizing: "border-box", // Để padding không làm vỡ khung
+  },
+  button: {
+    width: "100%",
+    padding: "12px",
+    backgroundColor: "#0066ff",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "16px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+  note: {
+    marginTop: "20px",
+    fontSize: "12px",
+    color: "#666",
+  },
+  roomContainer: {
+    height: "100vh",
+    width: "100vw",
+  },
+};
 
 export default App;
