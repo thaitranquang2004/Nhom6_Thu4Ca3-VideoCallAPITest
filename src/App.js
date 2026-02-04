@@ -27,19 +27,18 @@ function App() {
   }
 
   return (
-    <div style={{ height: "100vh" }}>
-      {" "}
-      {/* Quan trọng: Phải set chiều cao 100vh */}
-      {/* LiveKitRoom là component bao bọc, nó tự xử lý kết nối */}
+    <div style={{ height: "100vh", width: "100vw", backgroundColor: "#111" }}>
       <LiveKitRoom
-        video={true} // Tự bật cam
-        audio={true} // Tự bật mic
-        token={TOKEN} // Vé vào cửa
-        serverUrl={LIVEKIT_URL} // Địa chỉ server
-        connect={true} // Tự động kết nối luôn
-        data-lk-theme="default" // Sử dụng giao diện mặc định
+        video={true}
+        audio={true}
+        token={TOKEN}
+        serverUrl={LIVEKIT_URL}
+        connect={true}
+        data-lk-theme="default"
       >
-        {/* Đây là giao diện chính (Lưới video, nút bấm, chat...) */}
+        {/* VideoConference là component "All-in-one". 
+           Nó tự động phát hiện số lượng người để chia Grid.
+        */}
         <VideoConference />
       </LiveKitRoom>
     </div>
